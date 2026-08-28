@@ -1,0 +1,31 @@
+---
+- name: Install SonarQube
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Pull SonarQube image
+      community.docker.docker_image:
+        name: sonarqube:lts-community
+        source: pull
+
+    - name: Run SonarQube container
+      community.docker.docker_container:
+        name: sonarqube
+        image: sonarqube:lts-community
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "9000:9000"

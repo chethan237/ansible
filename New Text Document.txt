@@ -1,0 +1,35 @@
+---
+- name: Install Prometheus and Grafana
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Run Prometheus
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "9090:9090"
+
+    - name: Run Grafana
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "3000:3000"
